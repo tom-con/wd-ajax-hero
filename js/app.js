@@ -44,7 +44,6 @@
       const $modalContent = $('<div>').addClass('modal-content');
       const $modalHeader = $('<h4>').text(movie.title);
       const $movieYear = $('<h6>').text(`Released in ${movie.year}`);
-      console.log(movie.plot);
       const $modalText = $('<p>').text(movie.plot);
       // console.log($modalText);
 
