@@ -5,7 +5,6 @@
 
   const renderMovies = function() {
     $('#listings').empty();
-
     for (const movie of movies) {
       const $col = $('<div>').addClass('col s6');
       const $card = $('<div>').addClass('card hoverable');
@@ -17,7 +16,9 @@
         'data-tooltip': movie.title
       });
 
-      $title.tooltip({ delay: 50 }).text(movie.title);
+      $title.tooltip({
+        delay: 50
+      }).text(movie.title);
 
       const $poster = $('<img>').addClass('poster');
 
@@ -43,18 +44,56 @@
       const $modalContent = $('<div>').addClass('modal-content');
       const $modalHeader = $('<h4>').text(movie.title);
       const $movieYear = $('<h6>').text(`Released in ${movie.year}`);
+      console.log(movie.plot);
       const $modalText = $('<p>').text(movie.plot);
+      // console.log($modalText);
 
       $modalContent.append($modalHeader, $movieYear, $modalText);
       $modal.append($modalContent);
-
+      // console.log($modal);
       $col.append($card, $modal);
 
       $('#listings').append($col);
 
       $('.modal-trigger').leanModal();
     }
+    movies.length = 0;
   };
 
-  // ADD YOUR CODE HERE
+  $('button').click((event) => {
+    event.preventDefault();
+    let userSearch = $('#search').val();
+    $.ajax({
+      method: 'GET',
+      url: `http://www.omdbapi.com/?s=${userSearch}`,
+      dataType: 'JSON',
+      success: (data) => {
+        for (let i = 0; i < data.Search.length; i++) {
+          let movObj = {
+            id: data.Search[i].imdbID,
+            poster: data.Search[i].Poster,
+            title: data.Search[i].Title,
+            year: data.Search[i].Year
+          };
+          $.ajax({
+            method: 'GET',
+            url: `http://www.omdbapi.com/?i=${data.Search[i].imdbID}&plot=short`,
+            dataType: 'JSON',
+            success: (data1) => {
+              movObj.plot = data1.Plot;
+              movies.push(movObj);
+            },
+            error: () => {
+              console.log("error");
+            }
+          });
+
+        }
+        renderMovies();
+      },
+      error: () => {
+        console.log("error");
+      }
+    });
+  });
 })();
